@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de Reuniones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        input, select {
+            padding: 5px;
+            margin: 5px;
+            width: 80%;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📌 Asignación de Reuniones</h1>
+</header>
+
+<div class="container">
+    <h2>Agregar Participante</h2>
+    <input type="text" id="nombre-participante" placeholder="Nombre del participante">
+    <button onclick="agregarParticipante()">Agregar</button>
+
+    <h2>📋 Reuniones y Asignaciones</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Participantes</th>
+                <th>Asignar</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reuniones"></tbody>
+    </table>
+</div>
+
+<script>
+    let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+    let participantes = JSON.parse(localStorage.getItem("participantes")) || [];
+
+    document.addEventListener("DOMContentLoaded", mostrarReuniones);
+
+    function mostrarReuniones() {
+        let listaReuniones = document.getElementById("lista-reuniones");
+        listaReuniones.innerHTML = "";
+
+        reuniones.forEach((reunion, index) => {
+            let fila = document.createElement("tr");
+            let participantesHtml = reunion.participantes ? reunion.participantes.join(", ") : "Ninguno";
+
+            fila.innerHTML = `
+                <td>${reunion.id}</td>
+                <td>${reunion.titulo}</td>
+                <td>${reunion.fecha}</td>
+                <td>${participantesHtml}</td>
+                <td>
+                    <select id="participante-${index}">
+                        ${participantes.map(participante => `<option value="${participante}">${participante}</option>`).join("")}
+                    </select>
+                    <button onclick="asignarParticipante(${index})">Asignar</button>
+                </td>
+            `;
+            listaReuniones.appendChild(fila);
+        });
+    }
+
+    function agregarParticipante() {
+        let nombre = document.getElementById("nombre-participante").value.trim();
+        if (nombre === "") {
+            alert("Ingrese un nombre válido.");
+            return;
+        }
+        participantes.push(nombre);
+        localStorage.setItem("participantes", JSON.stringify(participantes));
+        document.getElementById("nombre-participante").value = "";
+        mostrarReuniones();
+    }
+
+    function asignarParticipante(index) {
+        let select = document.getElementById(`participante-${index}`);
+        let participanteSeleccionado = select.value;
+
+        if (!reuniones[index].participantes) {
+            reuniones[index].participantes = [];
+        }
+
+        if (!reuniones[index].participantes.includes(participanteSeleccionado)) {
+            reuniones[index].participantes.push(participanteSeleccionado);
+            localStorage.setItem("reuniones", JSON.stringify(reuniones));
+            mostrarReuniones();
+        } else {
+            alert("El participante ya está asignado a esta reunión.");
+        }
+    }
+</script>
+
+</body>
+</html>

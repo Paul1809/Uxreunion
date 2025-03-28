@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Reuniones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button.cancelar { background-color: #d9534f; }
+        button.confirmar { background-color: #007bff; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        .cancelada { background-color: #f8d7da; }
+        .confirmada { background-color: #d4edda; }
+        footer {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1> Administración de Reuniones</h1>
+</header>
+
+<div class="container">
+    <h2> Agendar Reunión</h2>
+    <label for="titulo">Título de la Reunión:</label>
+    <input type="text" id="titulo" placeholder="Ingrese el nombre de la reunión">
+
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha">
+
+    <button onclick="agendarReunion()">Agendar Reunión</button>
+
+    <h2> Reuniones Agendadas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reuniones"></tbody>
+    </table>
+</div>
+
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+        mostrarReuniones();
+
+        window.agendarReunion = function () {
+            let titulo = document.getElementById("titulo").value;
+            let fecha = document.getElementById("fecha").value;
+
+            if (titulo.trim() === "" || fecha.trim() === "") {
+                alert("Por favor, ingrese un título y una fecha.");
+                return;
+            }
+
+            let nuevaReunion = {
+                id: reuniones.length + 1,
+                titulo: titulo,
+                fecha: fecha,
+                estado: "Pendiente"
+            };
+
+            reuniones.push(nuevaReunion);
+            localStorage.setItem("reuniones", JSON.stringify(reuniones));
+
+            document.getElementById("titulo").value = "";
+            document.getElementById("fecha").value = "";
+
+            mostrarReuniones();
+        };
+
+        function mostrarReuniones() {
+            let listaReuniones = document.getElementById("lista-reuniones");
+            listaReuniones.innerHTML = "";
+
+            reuniones.forEach((reunion, index) => {
+                let fila = document.createElement("tr");
+                fila.className = reunion.estado === "Cancelada" ? "cancelada" : 
+                                 reunion.estado === "Confirmada" ? "confirmada" : "";
+
+                fila.innerHTML = `
+                    <td>${reunion.id}</td>
+                    <td><input type="text" value="${reunion.titulo}" onchange="actualizarReunion(${index}, this.value, 'titulo')"></td>
+                    <td><input type="date" value="${reunion.fecha}" onchange="actualizarReunion(${index}, this.value, 'fecha')"></td>
+                    <td>${reunion.estado}</td>
+                    <td>
+                        <button class="confirmar" onclick="confirmarReunion(${index})">Confirmar</button>
+                        <button class="cancelar" onclick="cancelarReunion(${index})">Cancelar</button>
+                        <button onclick="eliminarReunion(${index})">Eliminar</button>
+                    </td>
+                `;
+                listaReuniones.appendChild(fila);
+            });
+        }
+
+        window.actualizarReunion = function (index, valor, campo) {
+            reuniones[index][campo] = valor;
+            localStorage.setItem("reuniones", JSON.stringify(reuniones));
+            mostrarReuniones();
+        };
+
+        window.confirmarReunion = function (index) {
+            if (confirm("¿Deseas confirmar esta reunión?")) {
+                reuniones[index].estado = "Confirmada";
+                localStorage.setItem("reuniones", JSON.stringify(reuniones));
+                mostrarReuniones();
+            }
+        };
+
+        window.cancelarReunion = function (index) {
+            if (confirm("¿Seguro que deseas cancelar esta reunión?")) {
+                reuniones[index].estado = "Cancelada";
+                localStorage.setItem("reuniones", JSON.stringify(reuniones));
+                mostrarReuniones();
+            }
+        };
+
+        window.eliminarReunion = function (index) {
+            if (confirm("¿Seguro que deseas eliminar esta reunión?")) {
+                reuniones.splice(index, 1);
+                localStorage.setItem("reuniones", JSON.stringify(reuniones));
+                mostrarReuniones();
+            }
+        };
+    });
+</script>
+
+</body>
+</html>

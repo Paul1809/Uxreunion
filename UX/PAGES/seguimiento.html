@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Acuerdos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Asegura que el contenido ocupe toda la altura de la página */
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-grow: 1; /* Permite que el contenido ocupe el espacio disponible */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+        }
+        .close {
+            color: red;
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        footer {
+            background-color: #0033a0;
+            color: white;
+            padding: 10px 0;
+            margin-top: auto; /* Coloca el footer al final */
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📋 Seguimiento de Acuerdos</h1>
+</header>
+
+<div class="container">
+    <h2>Lista de Reuniones</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Seguimiento de Acuerdos</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reuniones"></tbody>
+    </table>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Seguimiento de Acuerdos</h2>
+        <textarea id="acuerdosInput" rows="5" style="width: 100%;"></textarea>
+        <button onclick="guardarAcuerdos()">Guardar</button>
+    </div>
+</div>
+
+<script>
+    let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+    let reunionSeleccionada = null;
+
+    document.addEventListener("DOMContentLoaded", mostrarReuniones);
+
+    function mostrarReuniones() {
+        let listaReuniones = document.getElementById("lista-reuniones");
+        listaReuniones.innerHTML = "";
+
+        reuniones.forEach((reunion, index) => {
+            let fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${reunion.id}</td>
+                <td>${reunion.titulo}</td>
+                <td>${reunion.fecha}</td>
+                <td>
+                    <button onclick="verAcuerdos(${index})">📑 Ver</button>
+                </td>
+            `;
+            listaReuniones.appendChild(fila);
+        });
+    }
+
+    function verAcuerdos(index) {
+        reunionSeleccionada = index;
+        document.getElementById("acuerdosInput").value = reuniones[index].acuerdos || "";
+        document.getElementById("modal").style.display = "flex";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal").style.display = "none";
+    }
+
+    function guardarAcuerdos() {
+        let inputAcuerdos = document.getElementById("acuerdosInput").value;
+        reuniones[reunionSeleccionada].acuerdos = inputAcuerdos;
+        localStorage.setItem("reuniones", JSON.stringify(reuniones));
+        cerrarModal();
+        mostrarReuniones();
+    }
+</script>
+
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #001F3F, #003366);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            color: white;
+            width: 100%;
+            max-width: 280px;
+        }
+        .input-group {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .input-group input {
+            width: 90%;
+            padding: 6px 30px 6px 6px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .input-group i {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 12px;
+        }
+        .btn {
+            background: #0099ff;
+            color: white;
+            border: none;
+            padding: 6px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn:hover {
+            background: #007acc;
+        }
+        .role-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 10px;
+        }
+        a {
+            color: #0099ff;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        @media (max-width: 400px) {
+            .login-box {
+                padding: 8px;
+            }
+            .btn {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>USER LOGIN</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="text" id="email" name="email" placeholder="Correo" required>
+                <i class="fa fa-envelope"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                <i class="fa fa-lock"></i>
+            </div>
+            <div class="role-group">
+                <input type="radio" id="admin" name="role" value="admin" required>
+                <label for="admin">Administrador</label>
+                <input type="radio" id="user" name="role" value="usuario" required>
+                <label for="user">Usuario</label>
+            </div>
+            <button type="submit" class="btn">Iniciar sesión</button>
+        </form>
+        <p><a href="#">¿Olvidaste tu contraseña?</a></p>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Evita el envío tradicional del formulario
+
+            // Obtener valores de los campos
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var role = document.querySelector('input[name="role"]:checked');
+
+            if (!role) {
+                alert("⚠️ Por favor, selecciona un rol antes de continuar.");
+                return;
+            }
+
+            if (email && password) {
+                if (role.value === "admin") {
+                    window.location.href = "../PAGES/perfiladmin.html";
+                } else if (role.value === "usuario") {
+                    window.location.href = "../usuario/perfilusuario.html";
+                }
+            } else {
+                alert("⚠️ Todos los campos son obligatorios.");
+            }
+        });
+    </script>
+</body>
+</html>

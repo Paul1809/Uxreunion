@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Reuniones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-grow: 1; /* Esto asegura que el contenedor expanda y ocupe el espacio disponible */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        .cancelada {
+            background-color: #d9534f !important;
+            color: white;
+        }
+        .confirmada {
+            background-color: #28a745 !important;
+            color: white;
+        }
+        button {
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 2px;
+            color: white;
+        }
+        .btn-confirmar {
+            background-color: #28a745;
+        }
+        .btn-cancelar {
+            background-color: #d9534f;
+        }
+        footer {
+            background-color: #0033a0;
+            color: white;
+            padding: 10px 0;
+            margin-top: auto; /* Asegura que el footer esté al final */
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1> Confirmar o Cancelar Reuniones</h1>
+</header>
+
+<div class="container">
+    <h2> Reuniones Programadas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reuniones"></tbody>
+    </table>
+</div>
+
+<script>
+    let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+
+    document.addEventListener("DOMContentLoaded", mostrarReuniones);
+
+    function mostrarReuniones() {
+        let listaReuniones = document.getElementById("lista-reuniones");
+        listaReuniones.innerHTML = "";
+
+        reuniones.forEach((reunion, index) => {
+            let fila = document.createElement("tr");
+            fila.className = reunion.estado === "Cancelada" ? "cancelada" : reunion.estado === "Confirmada" ? "confirmada" : "";
+
+            fila.innerHTML = `
+                <td>${reunion.id}</td>
+                <td>${reunion.titulo}</td>
+                <td>${reunion.fecha}</td>
+                <td>${reunion.estado}</td>
+                <td>
+                    ${reunion.estado === "Pendiente" ? `  
+                        <button class="btn-confirmar" onclick="cambiarEstado(${index}, 'Confirmada')">✅ Confirmar</button>
+                        <button class="btn-cancelar" onclick="cambiarEstado(${index}, 'Cancelada')">❌ Cancelar</button>
+                    ` : reunion.estado === "Confirmada" ? "✅ Confirmada" : "❌ Cancelada" }
+                </td>
+            `;
+            listaReuniones.appendChild(fila);
+        });
+    }
+
+    function cambiarEstado(index, nuevoEstado) {
+        if (confirm(`¿Seguro que deseas marcar esta reunión como "${nuevoEstado}"?`)) {
+            reuniones[index].estado = nuevoEstado;
+            localStorage.setItem("reuniones", JSON.stringify(reuniones));
+            mostrarReuniones();
+        }
+    }
+</script>
+
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+</body>
+</html>

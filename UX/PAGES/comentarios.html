@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - Gestión de Comentarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f8fc;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header, footer {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: auto;
+            flex-grow: 1;
+        }
+
+        h2 {
+            color: #004080;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .comentario-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comentario-box button {
+            background-color: #d9534f;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comentario-box button:hover {
+            background-color: #c9302c;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>👤 Administrador - Gestión de Comentarios</h1>
+</header>
+
+<div class="container">
+    <h2>Comentarios de los Usuarios</h2>
+    <div id="lista-comentarios">
+        <p>No hay comentarios registrados.</p>
+    </div>
+</div>
+
+<script>
+    function mostrarComentarios() {
+        let lista = document.getElementById("lista-comentarios");
+        let comentarios = JSON.parse(localStorage.getItem("comentarios")) || [];
+
+        if (comentarios.length === 0) {
+            lista.innerHTML = "<p>No hay comentarios registrados.</p>";
+            return;
+        }
+
+        lista.innerHTML = "";
+        comentarios.forEach((comentario, index) => {
+            let div = document.createElement("div");
+            div.classList.add("comentario-box");
+
+            let texto = document.createElement("span");
+            texto.textContent = `${comentario}`;
+
+            let botonEliminar = document.createElement("button");
+            botonEliminar.textContent = "Eliminar";
+            botonEliminar.onclick = () => eliminarComentario(index);
+
+            div.appendChild(texto);
+            div.appendChild(botonEliminar);
+            lista.appendChild(div);
+        });
+    }
+
+    function eliminarComentario(index) {
+        let comentarios = JSON.parse(localStorage.getItem("comentarios")) || [];
+        comentarios.splice(index, 1);  // Eliminar el comentario
+        localStorage.setItem("comentarios", JSON.stringify(comentarios));
+
+        mostrarComentarios();
+    }
+
+    window.onload = mostrarComentarios;
+</script>
+
+<footer>
+    <p>© 2025 Sistema de Gestión de Reuniones | Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>

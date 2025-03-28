@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Asistencia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        .confirmado {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-confirmar {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-confirmar:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-regresar {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        footer {
+            background-color: #0033a0;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📅 Confirmar Asistencia a Reuniones</h1>
+</header>
+
+<div class="container">
+    <h2>Lista de Reuniones</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Asistencia</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reuniones"></tbody>
+    </table>
+
+    <!-- Botón para regresar al perfil del usuario -->
+    <button class="btn-regresar" onclick="regresarAlPerfil()">Regresar al Perfil</button>
+</div>
+
+<!-- Pie de página -->
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+<script>
+    let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+    let asistencias = JSON.parse(localStorage.getItem("asistencias")) || {}; 
+
+    document.addEventListener("DOMContentLoaded", mostrarReuniones);
+
+    function mostrarReuniones() {
+        let listaReuniones = document.getElementById("lista-reuniones");
+        listaReuniones.innerHTML = "";
+
+        reuniones.forEach((reunion, index) => {
+            let confirmada = asistencias[reunion.id] || false;
+            let fila = document.createElement("tr");
+            fila.className = confirmada ? "confirmado" : "";
+
+            fila.innerHTML = `
+                <td>${reunion.id}</td>
+                <td>${reunion.titulo}</td>
+                <td>${reunion.fecha}</td>
+                <td>${confirmada ? "✅ Confirmado" : "Pendiente"}</td>
+                <td>
+                    <button class="btn-confirmar" onclick="confirmarAsistencia(${reunion.id})" ${confirmada ? "disabled" : ""}>
+                        ${confirmada ? "Asistirás" : "Confirmar"}
+                    </button>
+                </td>
+            `;
+            listaReuniones.appendChild(fila);
+        });
+    }
+
+    function confirmarAsistencia(id) {
+        if (confirm("¿Seguro que deseas confirmar tu asistencia a esta reunión?")) {
+            asistencias[id] = true;
+            localStorage.setItem("asistencias", JSON.stringify(asistencias));
+            mostrarReuniones();
+        }
+    }
+
+    // Función para regresar al perfil
+    function regresarAlPerfil() {
+        window.location.href = 'indexusua.html'; // Cambia 'perfil.html' por la URL de tu página de perfil
+    }
+</script>
+
+</body>
+</html>

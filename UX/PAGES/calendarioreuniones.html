@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reuniones (Administrador)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .day {
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .day:hover {
+            background-color: #ddd;
+        }
+        .reunion-pendiente { background-color: #ffcc00; }
+        .reunion-confirmada { background-color: #28a745; color: white; }
+        .reunion-cancelada { background-color: #d9534f; color: white; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            text-align: left;
+        }
+        .close {
+            color: red;
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .minuta-container { display: none; }
+        .minuta-text {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+        }
+        footer {
+            background-color: #0033a0;
+            color: white;
+            padding: 10px 0;
+            margin-top: 20px;
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1> Calendario de Reuniones (Administrador)</h1>
+</header>
+
+<div class="container">
+    <div class="controls">
+        <button class="btn" onclick="cambiarMes(-1)" id="mes-anterior">◀ Mes Anterior</button>
+        <h2 id="mes-actual"></h2>
+        <button class="btn" onclick="cambiarMes(1)" id="mes-siguiente">Mes Siguiente ▶</button>
+    </div>
+
+    <div class="calendar" id="calendario"></div>
+</div>
+
+<!-- Ventana Modal -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Detalles de la Reunión</h2>
+        <p id="modal-detalle"></p>
+        <div class="minuta-container" id="minuta-container">
+            <h3> Minuta</h3>
+            <textarea id="minuta-text" class="minuta-text" placeholder="Escribe la minuta aquí..."></textarea>
+            <button class="btn" onclick="guardarMinuta()">💾 Guardar Minuta</button>
+        </div>
+        <div>
+            <h3>Estado de la Reunión:</h3>
+            <select id="estado-reunion" onchange="cambiarEstadoReunion()">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmada">Confirmada</option>
+                <option value="Cancelada">Cancelada</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+<script>
+    let reuniones = JSON.parse(localStorage.getItem("reuniones")) || [];
+    let fechaActual = new Date();
+    let mesActual = fechaActual.getMonth();
+    let añoActual = fechaActual.getFullYear();
+    let reunionActual = null;
+
+    function cambiarMes(cambio) {
+        mesActual += cambio;
+        if (mesActual < 0) { mesActual = 11; añoActual--; }
+        else if (mesActual > 11) { mesActual = 0; añoActual++; }
+        mostrarCalendario();
+    }
+
+    function mostrarCalendario() {
+        let calendario = document.getElementById("calendario");
+        let mesNombre = document.getElementById("mes-actual");
+        let nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        mesNombre.innerText = `${nombresMeses[mesActual]} ${añoActual}`;
+
+        calendario.innerHTML = "";
+        let primerDia = new Date(añoActual, mesActual, 1).getDay();
+        let diasEnMes = new Date(añoActual, mesActual + 1, 0).getDate();
+
+        for (let i = 0; i < primerDia; i++) {
+            let diaVacio = document.createElement("div");
+            diaVacio.classList.add("day");
+            calendario.appendChild(diaVacio);
+        }
+
+        for (let dia = 1; dia <= diasEnMes; dia++) {
+            let divDia = document.createElement("div");
+            divDia.classList.add("day");
+            divDia.innerText = dia;
+
+            let fechaString = `${añoActual}-${(mesActual + 1).toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
+            let reunionesDia = reuniones.filter(r => r.fecha === fechaString);
+
+            if (reunionesDia.length > 0) {
+                divDia.addEventListener("click", () => abrirModal(fechaString));
+
+                reunionesDia.forEach(reunion => {
+                    let reunionDiv = document.createElement("div");
+                    reunionDiv.innerText = reunion.titulo;
+
+                    if (reunion.estado === "Pendiente") divDia.classList.add("reunion-pendiente");
+                    else if (reunion.estado === "Confirmada") divDia.classList.add("reunion-confirmada");
+                    else if (reunion.estado === "Cancelada") divDia.classList.add("reunion-cancelada");
+
+                    divDia.appendChild(reunionDiv);
+                });
+            } else {
+                divDia.innerHTML = `${dia}<br><small>No hay reuniones</small>`;
+            }
+
+            calendario.appendChild(divDia);
+        }
+        document.getElementById("mes-anterior").disabled = (mesActual === 0);
+        document.getElementById("mes-siguiente").disabled = (mesActual === 11);
+    }
+
+    function abrirModal(fecha) {
+        reunionActual = reuniones.find(r => r.fecha === fecha);
+        document.getElementById("modal-detalle").innerHTML = reunionActual ? `<strong>Título:</strong> ${reunionActual.titulo} <br> <strong>Fecha:</strong> ${reunionActual.fecha} <br> <strong>Estado:</strong> ${reunionActual.estado}` : "No hay reuniones este día.";
+        document.getElementById("minuta-text").value = reunionActual?.minuta || "";
+
+        document.getElementById("minuta-container").style.display = reunionActual?.estado === "Cancelada" ? "none" : "block";
+        document.getElementById("estado-reunion").value = reunionActual?.estado || "Pendiente";
+        document.getElementById("modal").style.display = "flex";
+    }
+
+    function cerrarModal() { document.getElementById("modal").style.display = "none"; }
+
+    function guardarMinuta() {
+        reunionActual.minuta = document.getElementById("minuta-text").value;
+        localStorage.setItem("reuniones", JSON.stringify(reuniones));
+        alert("Minuta guardada correctamente.");
+        cerrarModal();
+    }
+
+    function cambiarEstadoReunion() {
+        if (reunionActual) {
+            reunionActual.estado = document.getElementById("estado-reunion").value;
+            localStorage.setItem("reuniones", JSON.stringify(reuniones));
+            mostrarCalendario();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", mostrarCalendario);
+</script>
+
+</body>
+</html>

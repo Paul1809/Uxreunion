@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minutas de Reuniones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #0033a0;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0033a0;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            text-align: left;
+        }
+        .close {
+            color: red;
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .btn-regresar {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        footer {
+            background-color: #0033a0;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📄 Minutas de Reuniones</h1>
+</header>
+
+<div class="container">
+    <h2>📜 Lista de Minutas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="lista-minutas"></tbody>
+    </table>
+
+    <!-- Botón para regresar al perfil del usuario -->
+    <button class="btn-regresar" onclick="regresarAlPerfil()">Regresar al Perfil</button>
+</div>
+
+<!-- Modal para ver detalles -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Detalles de la Minuta</h2>
+        <p id="modal-detalle"></p>
+    </div>
+</div>
+
+<!-- Pie de página -->
+<footer>
+    <p>&copy; 2025 - Todos los derechos reservados</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+</footer>
+
+<script>
+    let minutas = JSON.parse(localStorage.getItem("minutas")) || [];
+
+    function mostrarMinutas() {
+        let listaMinutas = document.getElementById("lista-minutas");
+        listaMinutas.innerHTML = "";
+
+        minutas.forEach((minuta, index) => {
+            let fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${minuta.id}</td>
+                <td>${minuta.titulo}</td>
+                <td>${minuta.fecha}</td>
+                <td>
+                    <button onclick="verMinuta(${index})">📄 Ver</button>
+                </td>
+            `;
+            listaMinutas.appendChild(fila);
+        });
+    }
+
+    function verMinuta(index) {
+        let minuta = minutas[index];
+        document.getElementById("modal-detalle").innerHTML = ` 
+            <strong>Título:</strong> ${minuta.titulo} <br>
+            <strong>Fecha:</strong> ${minuta.fecha} <br>
+            <strong>Resumen:</strong> ${minuta.descripcion}
+        `;
+        document.getElementById("modal").style.display = "flex";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal").style.display = "none";
+    }
+
+    // Función para regresar al perfil
+    function regresarAlPerfil() {
+        window.location.href = 'indexusua.html'; // Cambia 'perfil.html' por la URL de tu página de perfil
+    }
+
+    document.addEventListener("DOMContentLoaded", mostrarMinutas);
+</script>
+
+</body>
+</html>

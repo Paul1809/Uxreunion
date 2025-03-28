@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuario - Agregar Comentarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f8fc;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header, footer {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: auto;
+            flex-grow: 1;
+        }
+
+        h2 {
+            color: #004080;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .comentario-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>👤 Usuario - Agregar Comentario</h1>
+</header>
+
+<div class="container">
+    <h2>Agregar un Comentario</h2>
+
+    <div class="comentario-box">
+        <textarea id="comentario" placeholder="Escribe tu comentario aquí..." rows="4" required></textarea>
+        <button onclick="agregarComentario()">Agregar Comentario</button>
+    </div>
+
+</div>
+
+<script>
+    function agregarComentario() {
+        let comentario = document.getElementById("comentario").value;
+
+        if (comentario === "") {
+            alert("Por favor, escribe un comentario.");
+            return;
+        }
+
+        let comentarios = JSON.parse(localStorage.getItem("comentarios")) || [];
+        comentarios.push(comentario);
+        localStorage.setItem("comentarios", JSON.stringify(comentarios));
+
+        alert("Comentario agregado con éxito.");
+        document.getElementById("comentario").value = "";  // Limpiar el campo
+    }
+</script>
+
+<footer>
+    <p>© 2025 Sistema de Gestión de Reuniones | Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>
